@@ -1,0 +1,19 @@
+{
+  "name": "ecom_app",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "install": "cd backend && npm i && cd ../frontend && npm i",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && npm run dev",
+    "client": "cd frontend && npm start",
+    "build":"cd frontend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  }
+}

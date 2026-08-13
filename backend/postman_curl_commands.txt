@@ -1,0 +1,43 @@
+# Postman-importable cURL commands for the local backend API
+# Replace <TOKEN>, <PRODUCT_ID>, and file paths before importing.
+
+# Base URL (adjust if you run on a different port)
+LOCAL="http://localhost:8000"
+
+# 1) Get all products
+curl -X GET "$LOCAL/api/products"
+
+# 2) Get product by id
+curl -X GET "$LOCAL/api/products/<PRODUCT_ID>"
+
+# 3) Create product (multipart/form-data, with image)
+curl -X POST "$LOCAL/api/products" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -F "name=Example Product" \
+  -F "description=Nice product" \
+  -F "price=19.99" \
+  -F "category=books" \
+  -F "stock=10" \
+  -F "image=@/path/to/image.jpg"
+
+# 3b) Create product (JSON, no file)
+curl -X POST "$LOCAL/api/products" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"JSON Product","description":"No image","price":9.99,"category":"misc","stock":5}'
+
+# 4) Update product (multipart/form-data, optional new image)
+curl -X PUT "$LOCAL/api/products/<PRODUCT_ID>" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -F "name=Updated Product Name" \
+  -F "price=14.99" \
+  -F "image=@/path/to/new-image.jpg"
+
+# 5) Delete product
+curl -X DELETE "$LOCAL/api/products/<PRODUCT_ID>" \
+  -H "Authorization: Bearer <TOKEN>"
+
+# Notes:
+# - The routes are mounted at /api/products (see backend/index.js).
+# - The create/update endpoints require authentication (Bearer token) and admin middleware.
+# - To import into Postman: File -> Import -> Raw text, paste any single curl command above, or save this file and import it.
