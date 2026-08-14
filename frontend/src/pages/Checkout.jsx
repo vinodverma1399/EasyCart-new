@@ -61,7 +61,6 @@ const Checkout = () => {
             console.log("Verify payment response:", verifyData);
 
             if (verifyRes.ok) {
-              alert(verifyData.message || 'Payment verified successfully!');
               const saveOrderRes = await fetch(`${API_BASE}/api/orders`, {
                 method: 'POST',
                 headers: { 
@@ -76,14 +75,13 @@ const Checkout = () => {
                 })
               });
 
-              if (saveOrderRes.ok) {
-                dispatch(clearCart());
-                localStorage.removeItem('cartItems');
-                navigate('/ordersuccess');
-              } else {
-                const orderErr = await saveOrderRes.json();
-                alert('Order saving failed: ' + (orderErr.message || 'Unknown error'));
-              }
+              // Clear cart immediately
+              dispatch(clearCart());
+              localStorage.setItem('cartItems', JSON.stringify([]));
+              localStorage.removeItem('cartItems');
+
+              alert(verifyData.message || 'Payment verified successfully!');
+              window.location.href = '/ordersuccess';
             } else {
               alert('Payment verification failed: ' + (verifyData.message || 'Signature mismatch'));
             }

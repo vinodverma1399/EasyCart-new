@@ -17,11 +17,16 @@ const createOrder = async (req, res) => {
     });
     await order.save();
 
-    const message = `Dear ${req.user.name}\n\nThank you for placing your order with EasyCart!\n\nYour order has been successfully placed.\n\nOrder ID: ${order._id}\nTotal Amount: ₹${totalAmount}\n\nWe will keep you updated about your order status.\n\nThank you for shopping with us!\n\nRegards,\nEasyCart Team`;
+    try {
+      const message = `Dear ${req.user.name}\n\nThank you for placing your order with EasyCart!\n\nYour order has been successfully placed.\n\nOrder ID: ${order._id}\nTotal Amount: ₹${totalAmount}\n\nWe will keep you updated about your order status.\n\nThank you for shopping with us!\n\nRegards,\nEasyCart Team`;
+      await sendEmail(req.user.email, "Order placed successfully --EasyCart!", message);
+    } catch (emailErr) {
+      console.warn("Order email notification failed to send:", emailErr.message);
+    }
 
-    await sendEmail(req.user.email, "Order placed successfully --EasyCart!", message);
     res.status(201).json(order);
   } catch (error) {
+    console.error("Order creation failed:", error);
     res.status(400).json({ message: error.message });
   }
 };
