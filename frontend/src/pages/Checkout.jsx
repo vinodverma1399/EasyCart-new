@@ -61,6 +61,7 @@ const Checkout = () => {
             console.log("Verify payment response:", verifyData);
 
             if (verifyRes.ok) {
+              alert(verifyData.message || 'Payment verified successfully!');
               const saveOrderRes = await fetch(`${API_BASE}/api/orders`, {
                 method: 'POST',
                 headers: { 
