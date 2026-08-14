@@ -61,33 +61,34 @@ const Checkout = () => {
             console.log("Verify payment response:", verifyData);
 
             if (verifyRes.ok) {
-              const saveOrderRes = await fetch(`${API_BASE}/api/orders`, {
-                method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  Authorization: `Bearer ${user.token}`
-                },
-                body: JSON.stringify({
-                  items: cartItems.map(i => ({ productID: i.productId, qty: i.qty, price: i.price })),
-                  totalAmount: totalPrice,
-                  address,
-                  paymentId: response.razorpay_payment_id
-                })
-              });
-
-              // Clear cart immediately
               dispatch(clearCart());
-              localStorage.setItem('cartItems', JSON.stringify([]));
               localStorage.removeItem('cartItems');
 
-              alert(verifyData.message || 'Payment verified successfully!');
-              window.location.href = '/ordersuccess';
+              try {
+                await fetch(`${API_BASE}/api/orders`, {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`
+                  },
+                  body: JSON.stringify({
+                    items: cartItems.map(i => ({ productID: i.productId, qty: i.qty, price: i.price })),
+                    totalAmount: totalPrice,
+                    address,
+                    paymentId: response.razorpay_payment_id
+                  })
+                });
+              } catch (saveErr) {
+                console.error("Order save error:", saveErr);
+              }
+
+              navigate('/ordersuccess');
             } else {
               alert('Payment verification failed: ' + (verifyData.message || 'Signature mismatch'));
             }
           } catch (err) {
             console.error("Error in payment handler:", err);
-            alert('Error processing payment response: ' + err.message);
+            alert('Error processing payment: ' + err.message);
           }
         },
         prefill: {
