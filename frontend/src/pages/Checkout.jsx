@@ -47,37 +47,48 @@ const Checkout = () => {
         description: 'Test Transaction',
         order_id: orderData.id,
         handler: async function (response) {
-          const verifyRes = await fetch(`${API_BASE}/api/payments/verify-payment`, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${user.token}`
-            },
-            body: JSON.stringify(response)
-          });
-          if (verifyRes.ok) {
-            const saveOrderRes = await fetch(`${API_BASE}/api/orders`, {
+          try {
+            console.log("Razorpay response received:", response);
+            const verifyRes = await fetch(`${API_BASE}/api/payments/verify-payment`, {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${user.token}`
               },
-              body: JSON.stringify({
-                items: cartItems.map(i => ({ productID: i.productId, qty: i.qty, price: i.price })),
-                totalAmount: totalPrice,
-                address,
-                paymentId: response.razorpay_payment_id
-              })
+              body: JSON.stringify(response)
             });
+            const verifyData = await verifyRes.json();
+            console.log("Verify payment response:", verifyData);
 
-            if (saveOrderRes.ok) {
-              dispatch(clearCart());
-              navigate('/ordersuccess');
+            if (verifyRes.ok) {
+              const saveOrderRes = await fetch(`${API_BASE}/api/orders`, {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${user.token}`
+                },
+                body: JSON.stringify({
+                  items: cartItems.map(i => ({ productID: i.productId, qty: i.qty, price: i.price })),
+                  totalAmount: totalPrice,
+                  address,
+                  paymentId: response.razorpay_payment_id
+                })
+              });
+
+              if (saveOrderRes.ok) {
+                dispatch(clearCart());
+                localStorage.removeItem('cartItems');
+                navigate('/ordersuccess');
+              } else {
+                const orderErr = await saveOrderRes.json();
+                alert('Order saving failed: ' + (orderErr.message || 'Unknown error'));
+              }
             } else {
-              alert('Order saving failed');
+              alert('Payment verification failed: ' + (verifyData.message || 'Signature mismatch'));
             }
-          } else {
-            alert('Payment verification failed');
+          } catch (err) {
+            console.error("Error in payment handler:", err);
+            alert('Error processing payment response: ' + err.message);
           }
         },
         prefill: {
