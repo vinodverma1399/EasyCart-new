@@ -82,7 +82,8 @@ const Checkout = () => {
                 console.error("Order save error:", saveErr);
               }
 
-              navigate('/ordersuccess');
+              alert(verifyData.message || 'Payment verified successfully');
+              window.location.href = '/';
             } else {
               alert('Payment verification failed: ' + (verifyData.message || 'Signature mismatch'));
             }
