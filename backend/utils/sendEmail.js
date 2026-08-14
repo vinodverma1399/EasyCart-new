@@ -1,24 +1,16 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import env from "dotenv";
 env.config();
 
-const sendEmail = async (to, subject, message) => {
-    const transporter = nodemailer.createTransport({
-        service: "Gmail",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASSWORD
-        }
-    });
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
+const sendEmail = async (to, subject, message) => {
+    await resend.emails.send({
+        from: "EasyCart <onboarding@resend.dev>",
         to,
         subject,
-        text: message
-    };
-
-    await transporter.sendMail(mailOptions);
-}
+        text: message,
+    });
+};
 
 export default sendEmail;
