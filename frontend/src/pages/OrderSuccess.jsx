@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { clearCart } from '../redux/cartSlice';
 
 const OrderSuccess = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(clearCart());
+    localStorage.removeItem('cartItems');
+  }, [dispatch]);
   const containerStyle = {
     maxWidth: '600px',
     margin: '50px auto',
