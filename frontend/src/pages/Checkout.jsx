@@ -30,13 +30,7 @@ const Checkout = () => {
       const orderData = await orderRes.json();
 
       if (!orderRes.ok) {
-        // Razorpay unconfigured exception handler
-        const fallback = window.confirm("Razorpay keys unconfigured on backend. Use Student Bypass Mode to place test order?");
-        if (fallback) {
-          return bypassPayment();
-        } else {
-          return alert("Payment failed to initialize");
-        }
+        return alert(orderData.message || "Payment initialization failed");
       }
 
       const options = {
@@ -48,7 +42,6 @@ const Checkout = () => {
         order_id: orderData.id,
         handler: async function (response) {
           try {
-            console.log("Razorpay response received:", response);
             const verifyRes = await fetch(`${API_BASE}/api/payments/verify-payment`, {
               method: 'POST',
               headers: { 
@@ -57,39 +50,31 @@ const Checkout = () => {
               },
               body: JSON.stringify(response)
             });
-            const verifyData = await verifyRes.json();
-            console.log("Verify payment response:", verifyData);
 
             if (verifyRes.ok) {
+              await fetch(`${API_BASE}/api/orders`, {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${user.token}`
+                },
+                body: JSON.stringify({
+                  items: cartItems.map(i => ({ productID: i.productId, qty: i.qty, price: i.price })),
+                  totalAmount: totalPrice,
+                  address,
+                  paymentId: response.razorpay_payment_id
+                })
+              });
+
               dispatch(clearCart());
-              localStorage.removeItem('cartItems');
-
-              try {
-                await fetch(`${API_BASE}/api/orders`, {
-                  method: 'POST',
-                  headers: { 
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`
-                  },
-                  body: JSON.stringify({
-                    items: cartItems.map(i => ({ productID: i.productId, qty: i.qty, price: i.price })),
-                    totalAmount: totalPrice,
-                    address,
-                    paymentId: response.razorpay_payment_id
-                  })
-                });
-              } catch (saveErr) {
-                console.error("Order save error:", saveErr);
-              }
-
-              alert(verifyData.message || 'Payment verified successfully');
-              window.location.href = '/';
+              alert('Payment verified successfully');
+              navigate('/ordersuccess');
             } else {
-              alert('Payment verification failed: ' + (verifyData.message || 'Signature mismatch'));
+              alert('Payment verification failed');
             }
           } catch (err) {
-            console.error("Error in payment handler:", err);
-            alert('Error processing payment: ' + err.message);
+            console.error(err);
+            alert('Error processing payment');
           }
         },
         prefill: {
@@ -109,26 +94,6 @@ const Checkout = () => {
     }
   };
 
-  const bypassPayment = async () => {
-    const saveOrderRes = await fetch(`${API_BASE}/api/orders`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.token}`
-      },
-      body: JSON.stringify({
-        items: cartItems.map(i => ({ productID: i.productId, qty: i.qty, price: i.price })),
-        totalAmount: totalPrice,
-        address,
-        paymentId: 'bypass_txn_' + Date.now()
-      })
-    });
-    if (saveOrderRes.ok) {
-      dispatch(clearCart());
-      navigate('/ordersuccess');
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!user) {
@@ -136,23 +101,8 @@ const Checkout = () => {
       navigate('/login');
       return;
     }
-    if (cartItems.length === 0) {
-      alert("Your cart is empty! Please add products from the shop first.");
-      navigate('/shop');
-      return;
-    }
     handlePayment();
   };
-
-  if (cartItems.length === 0) {
-    return (
-      <div className="checkout-container" style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <h2>Your Cart is Empty</h2>
-        <p style={{ color: '#a1a1aa', margin: '20px 0' }}>Please add products to your cart before proceeding to checkout.</p>
-        <button onClick={() => navigate('/shop')} className="btn">Go to Shop</button>
-      </div>
-    );
-  }
 
   return (
     <div className="checkout-container">
