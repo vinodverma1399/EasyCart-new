@@ -18,9 +18,15 @@ const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = await user.create({ name, email, password: hashedPassword });
         if (newUser) {
-            const otp = Math.floor(100000 + Math.random() * 900000);
-            const message = `Welcome to EasyCart ${name}! Thank you for registering with us. Your OTP is ${otp}`;
-            await sendEmail(email, "Welcome to EasyCart Registration", message);
+            // Email send karo, lekin agar fail ho toh registration rok mat
+            try {
+                const otp = Math.floor(100000 + Math.random() * 900000);
+                const message = `Welcome to EasyCart ${name}! Thank you for registering with us. Your OTP is ${otp}`;
+                await sendEmail(email, "Welcome to EasyCart Registration", message);
+            } catch (emailError) {
+                console.error("Welcome email send karne mein error (registration still successful):", emailError.message);
+            }
+
             res.status(201).json({
                 message: "User registered successfully", user: {
                     id: newUser._id,
