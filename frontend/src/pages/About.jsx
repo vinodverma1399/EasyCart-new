@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const About = () => {
   const containerStyle = {
@@ -27,12 +27,12 @@ const About = () => {
         Shop the best products at unbeatable prices with fast delivery and secure payments.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-        <a href="#" target="_blank" rel="noreferrer" style={socialBtnStyle}>Website</a>
-        <a href="#" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(239,68,68,0.2)', borderColor: '#ef4444', color: '#ef4444' }}>YouTube</a>
-        <a href="#" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(236,72,153,0.2)', borderColor: '#ec4899', color: '#ec4899' }}>Instagram</a>
-        <a href="#" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(59,130,246,0.2)', borderColor: '#3b82f6', color: '#3b82f6' }}>LinkedIn</a>
-        <a href="#" target="_blank" rel="noreferrer" style={socialBtnStyle}>X (Twitter)</a>
-        <a href="#" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(16,185,129,0.2)', borderColor: '#10b981', color: '#10b981' }}>WhatsApp</a>
+        <a href="https://github.com" target="_blank" rel="noreferrer" style={socialBtnStyle}>Website</a>
+        <a href="https://youtube.com" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(239,68,68,0.2)', borderColor: '#ef4444', color: '#ef4444' }}>YouTube</a>
+        <a href="https://instagram.com" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(236,72,153,0.2)', borderColor: '#ec4899', color: '#ec4899' }}>Instagram</a>
+        <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(59,130,246,0.2)', borderColor: '#3b82f6', color: '#3b82f6' }}>LinkedIn</a>
+        <a href="https://x.com" target="_blank" rel="noreferrer" style={socialBtnStyle}>X (Twitter)</a>
+        <a href="https://whatsapp.com" target="_blank" rel="noreferrer" style={{ ...socialBtnStyle, background: 'rgba(16,185,129,0.2)', borderColor: '#10b981', color: '#10b981' }}>WhatsApp</a>
       </div>
       <p style={{ color: '#3f3f46', fontSize: '0.8rem', marginTop: '30px' }}>
         * Social links — apni URLs About.jsx me update kar lena
