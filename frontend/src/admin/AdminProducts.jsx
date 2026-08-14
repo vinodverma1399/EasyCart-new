@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import API_BASE from '../config';
 
 const AdminProducts = () => {
   const { user } = useContext(AuthContext);
@@ -8,7 +9,7 @@ const AdminProducts = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch('/api/product');
+      const res = await fetch(`${API_BASE}/api/product`);
       const data = await res.json();
       setProducts(Array.isArray(data) ? data : []);
     };
@@ -17,7 +18,7 @@ const AdminProducts = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you strictly sure you want to delete this?')) {
-      const res = await fetch(`/api/product/${id}`, {
+      const res = await fetch(`${API_BASE}/api/product/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${user.token}` }
       });

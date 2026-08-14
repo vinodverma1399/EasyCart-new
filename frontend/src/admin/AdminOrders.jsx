@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import API_BASE from '../config';
 
 const AdminOrders = () => {
   const { user } = useContext(AuthContext);
@@ -7,7 +8,7 @@ const AdminOrders = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const res = await fetch('/api/orders', {
+      const res = await fetch(`${API_BASE}/api/orders`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const data = await res.json();
@@ -20,7 +21,7 @@ const AdminOrders = () => {
     if (status === 'delivered') {
       return;
     }
-    const res = await fetch(`/api/orders/${id}/status`, {
+    const res = await fetch(`${API_BASE}/api/orders/${id}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
       body: JSON.stringify({ status })
