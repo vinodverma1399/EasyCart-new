@@ -136,8 +136,23 @@ const Checkout = () => {
       navigate('/login');
       return;
     }
+    if (cartItems.length === 0) {
+      alert("Your cart is empty! Please add products from the shop first.");
+      navigate('/shop');
+      return;
+    }
     handlePayment();
   };
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="checkout-container" style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <h2>Your Cart is Empty</h2>
+        <p style={{ color: '#a1a1aa', margin: '20px 0' }}>Please add products to your cart before proceeding to checkout.</p>
+        <button onClick={() => navigate('/shop')} className="btn">Go to Shop</button>
+      </div>
+    );
+  }
 
   return (
     <div className="checkout-container">

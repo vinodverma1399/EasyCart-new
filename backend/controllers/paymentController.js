@@ -34,10 +34,7 @@ const verifyPayment = async (req, res) => {
         console.log("Verifying payment payload:", { razorpay_order_id, razorpay_payment_id, hasSignature: !!razorpay_signature });
 
         const secret = process.env.RAZORPAY_KEY_SECRET;
-        if (!secret) {
-            console.warn("RAZORPAY_KEY_SECRET is not set in environment variables. Accepting payment in test mode.");
-            return res.status(200).json({ message: "Payment verified successfully (test mode)" });
-        }
+       
 
         const sign = crypto.createHmac("sha256", secret).update(razorpay_order_id + "|" + razorpay_payment_id).digest("hex");
         if (sign === razorpay_signature) {
