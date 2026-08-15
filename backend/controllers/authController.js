@@ -88,42 +88,40 @@ const forgotPassword = async (req, res) => {
             return res.status(404).json({ message: "No account found with this email" });
         }
 
-        // Generate token
-        const crypto = await import("crypto");
-        const token = crypto.default.randomBytes(32).toString("hex");
-        const expire = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+        // 6-digit OTP generate karo
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expire = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-        existingUser.resetPasswordToken = token;
+        existingUser.resetPasswordToken = otp;
         existingUser.resetPasswordExpire = expire;
         await existingUser.save();
 
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-        const message = `Hi ${existingUser.name},\n\nClick the link below to reset your password (valid for 15 minutes):\n\n${resetLink}\n\nIf you did not request this, please ignore this email.`;
+        const message = `Hi ${existingUser.name},\n\nYour EasyCart password reset OTP is:\n\n${otp}\n\nThis OTP is valid for 10 minutes only.\n\nIf you did not request this, please ignore this email.`;
 
         try {
-            await sendEmail(email, "EasyCart - Password Reset Request", message);
+            await sendEmail(email, "EasyCart - Password Reset OTP", message);
         } catch (emailError) {
-            console.error("Reset email send error:", emailError.message);
+            console.error("Reset OTP email send error:", emailError.message);
         }
 
-        res.status(200).json({ message: "Password reset link sent to your email" });
+        res.status(200).json({ message: "OTP sent to your email successfully" });
     } catch (error) {
-        res.status(500).json({ message: "Error sending reset email", error });
+        res.status(500).json({ message: "Error sending OTP", error });
     }
 };
 
 const resetPassword = async (req, res) => {
     try {
-        const { token } = req.params;
-        const { password } = req.body;
+        const { email, otp, password } = req.body;
 
         const existingUser = await user.findOne({
-            resetPasswordToken: token,
+            email,
+            resetPasswordToken: otp,
             resetPasswordExpire: { $gt: new Date() }
         });
 
         if (!existingUser) {
-            return res.status(400).json({ message: "Invalid or expired reset token" });
+            return res.status(400).json({ message: "Invalid or expired OTP. Please try again." });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -138,4 +136,5 @@ const resetPassword = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, getUser, forgotPassword, resetPassword };
+export { registerUser, loginUser, getUser, forgotPassword, resetPassword };
+

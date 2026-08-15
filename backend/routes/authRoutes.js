@@ -9,6 +9,6 @@ routes.post("/register", registerUser);
 routes.post("/login", loginUser);
 routes.get("/getAll", protect, admin, getUser);
 routes.post("/forgot-password", forgotPassword);
-routes.post("/reset-password/:token", resetPassword);
+routes.post("/reset-password", resetPassword);
 
 export default routes;
