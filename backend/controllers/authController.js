@@ -80,4 +80,62 @@ const getUser = async (req, res) => {
     }
 };
 
-export { registerUser, loginUser, getUser };
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const existingUser = await user.findOne({ email });
+        if (!existingUser) {
+            return res.status(404).json({ message: "No account found with this email" });
+        }
+
+        // Generate token
+        const crypto = await import("crypto");
+        const token = crypto.default.randomBytes(32).toString("hex");
+        const expire = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+        existingUser.resetPasswordToken = token;
+        existingUser.resetPasswordExpire = expire;
+        await existingUser.save();
+
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+        const message = `Hi ${existingUser.name},\n\nClick the link below to reset your password (valid for 15 minutes):\n\n${resetLink}\n\nIf you did not request this, please ignore this email.`;
+
+        try {
+            await sendEmail(email, "EasyCart - Password Reset Request", message);
+        } catch (emailError) {
+            console.error("Reset email send error:", emailError.message);
+        }
+
+        res.status(200).json({ message: "Password reset link sent to your email" });
+    } catch (error) {
+        res.status(500).json({ message: "Error sending reset email", error });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        const existingUser = await user.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpire: { $gt: new Date() }
+        });
+
+        if (!existingUser) {
+            return res.status(400).json({ message: "Invalid or expired reset token" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        existingUser.password = await bcrypt.hash(password, salt);
+        existingUser.resetPasswordToken = null;
+        existingUser.resetPasswordExpire = null;
+        await existingUser.save();
+
+        res.status(200).json({ message: "Password reset successfully! Please login." });
+    } catch (error) {
+        res.status(500).json({ message: "Error resetting password", error });
+    }
+};
+
+export { registerUser, loginUser, getUser, forgotPassword, resetPassword };
